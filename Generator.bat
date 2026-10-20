@@ -19,6 +19,9 @@ set /p "Vroom= "
 goto funnel
 
 :funnel
+CHOICE /C AC /M "What emulator will you use? (A for Azahar C for Citra)"
+if %errorlevel%==1 set "EmuExe=azahar.exe"
+if %errorlevel%==2 set "EmuExe=citra-qt.exe"
 @echo What key will START the script?
 set /p "Start= "
 @echo What key will PAUSE the script?
@@ -46,6 +49,7 @@ if %Version%==Controller echo:  global toggle >> Controller.ahk
 if %Version%==Controller echo:  toggle ^:= 0 >> Controller.ahk
 if %Version%==Controller echo:  return >> Controller.ahk
 if %Version%==Controller echo:   >> Controller.ahk
+if %Version%==Controller echo:  #HotIf WinActive("ahk_exe %EmuExe%") ; Vehicle and Start keys only work while the emulator is focused >> Controller.ahk
 if %Version%==Controller echo:   *%Vroom%^:: >> Controller.ahk
 if %Version%==Controller echo:  { >> Controller.ahk
 if %Version%==Controller echo:  global >> Controller.ahk
@@ -86,6 +90,7 @@ if %Version%==Controller echo:  ClipCursor(true, LeftB1 ^+ 10, TopB1 ^+ 60, Left
 if %Version%==Controller echo:  SetTimer Activate, 50 >> Controller.ahk
 if %Version%==Controller echo:  } >> Controller.ahk
 if %Version%==Controller echo:   >> Controller.ahk
+if %Version%==Controller echo:  #HotIf >> Controller.ahk
 if %Version%==Controller echo:    ~*%Pause%^:: ; Restarts Script    >> Controller.ahk
 if %Version%==Controller echo:  { >> Controller.ahk
 if %Version%==Controller echo:  global >> Controller.ahk
@@ -224,6 +229,7 @@ if %Version%==KeyboardMouse echo: ClipCursor1(False, 0, 0, 0, 0)  >> KeyboardMou
 if %Version%==KeyboardMouse echo:  ExitApp() >> KeyboardMouse.ahk
 if %Version%==KeyboardMouse echo: } >> KeyboardMouse.ahk
 if %Version%==KeyboardMouse echo:  >> KeyboardMouse.ahk
+if %Version%==KeyboardMouse echo:  #HotIf WinActive("ahk_exe %EmuExe%") ; Movement, sprint and fire only work while the emulator is focused >> KeyboardMouse.ahk
 if %Version%==KeyboardMouse echo:   ~*%Sprint%^::   >> KeyboardMouse.ahk
 if %Version%==KeyboardMouse echo:  {  >> KeyboardMouse.ahk
 if %Version%==KeyboardMouse echo:  	global >> KeyboardMouse.ahk
@@ -595,6 +601,7 @@ if %Version%==KeyboardMouse echo: global toggle >> .\Lib\Barrier.ahk
 if %Version%==KeyboardMouse echo: toggle ^:= 0 >> .\Lib\Barrier.ahk
 if %Version%==KeyboardMouse echo: return >> .\Lib\Barrier.ahk
 if %Version%==KeyboardMouse echo:  >> .\Lib\Barrier.ahk
+if %Version%==KeyboardMouse echo: #HotIf WinActive("ahk_exe %EmuExe%") ; Vehicle and Start keys only work while the emulator is focused >> .\Lib\Barrier.ahk
 if %Version%==KeyboardMouse echo:  ~*%Vroom%^:: >> .\Lib\Barrier.ahk
 if %Version%==KeyboardMouse echo: { >> .\Lib\Barrier.ahk
 if %Version%==KeyboardMouse echo: global >> .\Lib\Barrier.ahk
@@ -636,6 +643,7 @@ if %Version%==KeyboardMouse echo: ClipCursor(true, LeftB1 ^+ 10, TopB1 ^+ 60, Le
 if %Version%==KeyboardMouse echo: SetTimer Activate, 50 >> .\Lib\Barrier.ahk
 if %Version%==KeyboardMouse echo: } >> .\Lib\Barrier.ahk
 if %Version%==KeyboardMouse echo:  >> .\Lib\Barrier.ahk
+if %Version%==KeyboardMouse echo: #HotIf >> .\Lib\Barrier.ahk
 if %Version%==KeyboardMouse echo:   ~*%Pause%^:: ; Restarts Script    >> .\Lib\Barrier.ahk
 if %Version%==KeyboardMouse echo: { >> .\Lib\Barrier.ahk
 if %Version%==KeyboardMouse echo: global >> .\Lib\Barrier.ahk
