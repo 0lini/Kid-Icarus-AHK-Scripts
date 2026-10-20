@@ -15,6 +15,29 @@ The bigger the touch screen, the finer your aim. Use View > Screen Layout > Sepa
 
 Leave as little black border around the touch screen as you can. Clicks on the border don't count as touches.
 
+## Quick setup: the ready-made remap (Mouse and Keyboard)
+`linux/kid_icarus_controls.py` adds an input profile called "Kid Icarus" to Azahar and selects it. Your other profiles stay, and it saves a backup of the config first.
+
+1. Close Azahar (it rewrites its config when it exits).
+2. Run `python3 linux/kid_icarus_controls.py`. It finds `~/.config/azahar-emu/qt-config.ini`, or the Flatpak one. Use `--config PATH` for a different file, or `--print` to only show the profile.
+3. Start Azahar. The profile is under Emulation > Configure > Controls, where you can still change anything.
+
+| Key | Does |
+| --- | --- |
+| W A S D | Move (full tilt: dash, then run) |
+| Shift (hold) + W A S D | Walk (half tilt) |
+| Left click + drag on touch screen | Aim |
+| Space | Fire (L) |
+| Q | Vehicle ability (taps the bottom-left of the touch screen; let go of left click first) |
+| 1 2 3 4 | D-Pad up, down, left, right (powers) |
+| E | R |
+| F / R / Z / X | A / B / X / Y |
+| Return / Backspace | Start / Select |
+
+To change keys, edit the tables at the top of the script and run it again. It replaces its own profile each time.
+
+The manual steps below do the same thing by hand.
+
 ## I want to control with Mouse and Keyboard!!
 All of this is in Emulation > Configure > Controls.
 
@@ -41,6 +64,6 @@ Aim: hold left click on the touch screen and drag. Flick quickly and let go to s
 Steam Input can do a lot more (mode shifts for menus, gyro aiming, "Mouse Region" so the stick position maps directly onto the touch screen). Look up a Steam Input guide if you want to go further.
 
 ## FAQ
-If Azahar is acting strangely, check its default hotkeys (Emulation > Configure > Hotkeys). Ctrl + W is bound to an action by default, unbind it if it clashes with your controls.
+If a key does something odd, check Azahar's hotkeys (Emulation > Configure > Hotkeys). Most use Ctrl or the F-keys, and Ctrl + Shift is bound by default, so don't put game controls on Ctrl.
 
 If the cursor drifts onto the top screen while aiming, put the screens on separate windows, or make the touch screen window fullscreen on a second monitor.
