@@ -1,11 +1,16 @@
 #!/usr/bin/env python3
-"""Adds a "Kid Icarus" keyboard/mouse input profile to Azahar's config and selects it.
+"""Adds two Kid Icarus keyboard/mouse input profiles to Azahar's config and selects one.
+
+- "Kid Icarus (helper)": for use with kid_icarus_helper.py (auto-recentering aim, walking ramp).
+  The Circle Pad and fire come from the helper's virtual gamepad, the aim from its DSU server.
+- "Kid Icarus": Azahar on its own, no helper.
 
 Close Azahar first (it rewrites its config when it exits), then run:
     python3 kid_icarus_controls.py
 Options:
+    --plain         select the "Kid Icarus" profile instead of the helper one
     --config PATH   use this qt-config.ini instead of searching for it
-    --print         only print the profile, change nothing
+    --print         only print the profiles, change nothing
 
 Your other input profiles are kept, and a backup of the config is written next to it.
 Edit the tables below to change keys. Key names: a-z, 0-9, Space, Shift, Return,
@@ -18,6 +23,7 @@ import sys
 import time
 
 PROFILE_NAME = "Kid Icarus"
+HELPER_PROFILE_NAME = "Kid Icarus (helper)"
 
 BUTTONS = {
     "button_l": "Space",      # Fire
@@ -111,6 +117,25 @@ def build_profile(touch_map_index):
     return profile
 
 
+# The helper's virtual pad, matched as "any SDL controller". SDL_CONTROLLER_BUTTON_LEFTSHOULDER = 9.
+HELPER_PAD = {"api": "controller", "engine": "sdl", "maptype": "all"}
+
+
+def build_helper_profile():
+    profile = {"name": HELPER_PROFILE_NAME}
+    profile.update({button: quote(keyboard(key)) for button, key in BUTTONS.items()})
+    profile["button_l"] = quote(serialize({**HELPER_PAD, "button": 9}))
+    profile["circle_pad"] = quote(serialize({**HELPER_PAD, "axis_x": 0, "axis_y": 1, "deadzone": "0.000000"}))
+    profile["c_stick"] = quote(analog(C_STICK, 0.5))
+    # Second touch source, only used while the mouse isn't touching: the helper's DSU stylus,
+    # sent in touch-screen pixels.
+    profile["use_touchpad"] = "true"
+    profile["controller_touch_device"] = quote(serialize(
+        {"engine": "cemuhookudp", "min_x": 0, "min_y": 0, "max_x": 320, "max_y": 240}))
+    profile["use_touch_from_button"] = "false"
+    return profile
+
+
 def build_touch_map():
     entries = [quote(serialize({"code": key_code(k), "engine": "keyboard", "x": x, "y": y}))
                for k, x, y in TOUCH_TAPS]
@@ -131,14 +156,23 @@ def split_array(lines, array):
     return [items[i] for i in sorted(items)], rest
 
 
-def find_by_name(items):
+def find_by_name(items, name=PROFILE_NAME):
     for i, item in enumerate(items):
-        if unquote(item.get("name", "")) == PROFILE_NAME:
+        if unquote(item.get("name", "")) == name:
             return i
     return None
 
 
-def patch_controls(section):
+def put(items, name, item):
+    index = find_by_name(items, name)
+    if index is None:
+        items.append(item)
+        return len(items) - 1
+    items[index] = item
+    return index
+
+
+def patch_controls(section, use_helper=True):
     """Takes the lines of the [Controls] section and returns the new lines."""
     profiles, rest = split_array(section, "profiles")
     touch_maps, rest = split_array(rest, "touch_from_button_maps")
@@ -154,12 +188,10 @@ def patch_controls(section):
     else:
         touch_maps[tm_index] = new_map
 
-    p_index = find_by_name(profiles)
-    if p_index is None:
-        profiles.append(build_profile(tm_index))
-        p_index = len(profiles) - 1
-    else:
-        profiles[p_index] = build_profile(tm_index)
+    p_index = put(profiles, PROFILE_NAME, build_profile(tm_index))
+    h_index = put(profiles, HELPER_PROFILE_NAME, build_helper_profile())
+    if use_helper:
+        p_index = h_index
 
     out = [l for l in rest if l.strip()]
     out.append(f"profile={p_index}")
@@ -179,14 +211,14 @@ def patch_controls(section):
     return out
 
 
-def patch_file(text):
+def patch_file(text, use_helper=True):
     lines = text.splitlines()
     start = next((i for i, l in enumerate(lines) if l.strip() == "[Controls]"), None)
     if start is None:
-        body = patch_controls([])
+        body = patch_controls([], use_helper)
         return text.rstrip("\n") + ("\n\n" if text.strip() else "") + "\n".join(["[Controls]"] + body) + "\n"
     end = next((i for i in range(start + 1, len(lines)) if lines[i].startswith("[")), len(lines))
-    body = patch_controls(lines[start + 1:end])
+    body = patch_controls(lines[start + 1:end], use_helper)
     tail = [""] + lines[end:] if end < len(lines) else []
     return "\n".join(lines[:start + 1] + body + tail) + "\n"
 
@@ -200,7 +232,7 @@ def azahar_running():
 
 def main(argv):
     if "--print" in argv:
-        print("\n".join(["[Controls]"] + patch_controls([])))
+        print("\n".join(["[Controls]"] + patch_controls([], "--plain" not in argv)))
         return
     if "--config" in argv:
         path = os.path.expanduser(argv[argv.index("--config") + 1])
@@ -215,10 +247,12 @@ def main(argv):
     with open(path, encoding="utf-8") as f:
         text = f.read()
     backup = f"{path}.bak-{time.strftime('%Y%m%d-%H%M%S')}"
-    shutil.copy2(path, backup)
+    if not os.path.exists(backup):
+        shutil.copy2(path, backup)
     with open(path, "w", encoding="utf-8") as f:
-        f.write(patch_file(text))
-    print(f"Added the \"{PROFILE_NAME}\" profile to {path}\nBackup: {backup}")
+        f.write(patch_file(text, "--plain" not in argv))
+    chosen = PROFILE_NAME if "--plain" in argv else HELPER_PROFILE_NAME
+    print(f"Added the Kid Icarus profiles to {path} and selected \"{chosen}\".\nBackup: {backup}")
 
 
 if __name__ == "__main__":

@@ -1,7 +1,7 @@
 ## What is This Project?
 Simply put, I made some AHK scripts that allow the 3DS classic Kid Icarus Uprising to be playing with mouse and keyboard or dual analogue, with very little problems. There is some software that you'll need to get this working fully, but once you download everything it'll be fairly plug and play. Please download the scripts from the "releases" page. Note: My video you are probably linked to from this is ENTIRELY OUTDATED!!! This is a complete, updated guide below
 
-**On Linux?** AHK doesn't run there. See [LINUX.md](LINUX.md) for a setup that only uses Azahar's built-in control mapping.
+**On Linux?** AHK doesn't run there. See [LINUX.md](LINUX.md) for a Linux helper with the same aiming and walking.
 
 ## What Software is Needed?
 1. Azahar ([https://azahar-emu.org/](https://azahar-emu.org/)) (Always needed. Citra still works too, just pick it in Generator.bat.)
